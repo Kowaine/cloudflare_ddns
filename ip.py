@@ -16,7 +16,7 @@ def by_requests_wrapper(func):
     """
     def wrapped():
         info = requests.get("http://ipv4.icanhazip.com")
-        info = info.text
+        info = info.text[:-1]
         return info
 
     return wrapped
