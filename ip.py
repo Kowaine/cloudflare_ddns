@@ -10,9 +10,9 @@ def by_requests_wrapper(func):
     """
     使用requests的包装器
     @args 
-        func: 包装前的get_ip_info函数
+        func 包装前的get_ip_info函数 :function()
     @returns
-        wrapped: 包装后的get_ip_info, 使用requests
+        wrapped 包装后的get_ip_info, 使用requests :function()
     """
     def wrapped():
         info = requests.get("http://ipv4.icanhazip.com")
