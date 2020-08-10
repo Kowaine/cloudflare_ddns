@@ -13,7 +13,7 @@ def generate_conf():
     """
     统合配置为conf变量，支持覆盖
     @returns
-        conf: 根据配置文件或用户输入生成的配置变量
+        conf 根据配置文件或用户输入生成的配置变量 :dict
     """
     conf = {}
     if ALLWAYS_DEFAULT:
@@ -35,12 +35,12 @@ def add_meta_conf(conf, require_id=True, require_priority=False, require_meta=Tr
     """
     为配置变量增加或覆盖额外的选项
     @args
-        conf: 配置变量
-        require_id: 是否配置DNS记录ID，默认为True
-        require_priority: 是否配置优先级，默认为False
-        require_meta: 是否配置通用选项, 默认为True
+        conf 配置变量 :dict
+        require_id: 是否配置DNS记录ID，默认为True :bool
+        require_priority: 是否配置优先级，默认为False :bool
+        require_meta: 是否配置通用选项, 默认为True :bool
     @returns
-        conf: 扩充后的配置变量
+        conf 扩充后的配置变量 :dict
     """
     if require_meta:
         while True:
@@ -76,9 +76,12 @@ def list_dns(conf):
     """
     查询DNS记录
     @args
-        conf: 配置变量字典, 需要user_email, api_key, zone_id三个键值对
+        conf 配置变量字典 :dict
+            user_email :string
+            api_key :string
+            zone_id :string
     @outputs 服务器返回数据
-    @returns 查询到的DNS记录
+    @returns 查询到的DNS记录 :dict
     """
     api = conf['api'].format(ZONE_ID=conf['zone_id'])
 
@@ -111,7 +114,15 @@ def update_dns(conf):
     """
     更新DNS记录
     @args
-        conf: 配置变量字典, 需要user_email, api_key, zone_id三个键值对
+        conf 配置变量字典 :dict
+            user_email :string
+            api_key :string
+            zone_id :string
+            id 记录id :string
+            type 记录类型 :string
+            name 三级域名前缀 :string
+            content 记录值 :string
+            proxied 是否启用代理服务 :bool
     @outputs 更新状态
     """
     api = conf['api'].format(ZONE_ID=conf['zone_id']) + "/" + conf["id"]
@@ -148,9 +159,17 @@ def add_dns(conf):
     """
     增加DNS记录
     @args
-        conf: 配置变量字典, 需要user_email, api_key, zone_id三个键值对
+        conf 配置变量字典 :dict
+            user_email :string
+            api_key :string
+            zone_id :string
+            type 记录类型 :string
+            name 三级域名前缀 :string
+            content 记录值 :string
+            proxied 是否启用代理服务 :bool
+            priority 优先级 :int
     @outputs 添加状态及添加的记录数据
-    @returns 添加的记录数据
+    @returns 添加的记录数据 :dict
 
     """
     api = conf['api'].format(ZONE_ID=conf['zone_id'])
@@ -176,7 +195,7 @@ def add_dns(conf):
         # print(data)
         if data['success'] and len(data['result']): # 检查数据是否为空
             print(data['result'])
-            print("[ Succeed! ]")
+            print("[ Succeeded! ]")
             return data['result']
         else:
             print("[ Failed! ]")
@@ -188,8 +207,13 @@ def delete_dns(conf):
     """
     删除DNS记录
     @args
-        conf: 配置变量字典, 需要user_email, api_key, zone_id三个键值对
+        conf 配置变量字典 :dict
+            user_email :string
+            api_key :string
+            zone_id :string
+            id 记录id :string
     @outputs 删除状态
+    @returns 删除的记录数据(实际只包含id) :dict
     """
     api = conf['api'].format(ZONE_ID=conf['zone_id']) + "/" + conf['id']
     # 删除
@@ -206,7 +230,7 @@ def delete_dns(conf):
         data = json.loads(res.text)
         # print(data)
         if data['success'] and len(data['result']): # 检查数据是否为空
-            print("[ Succeed! ]")
+            print("[ Succeeded! ]")
             return data['result']
         else:
             print("[ Failed! ]")
