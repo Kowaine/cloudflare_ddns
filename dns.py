@@ -1,6 +1,6 @@
 """
 @author Kowaine
-@desc 通过Cloudflare提供的API实现DNS记录的查询、增加、和更新、和删除
+@desc 通过Cloudflare提供的API实现DNS记录的查询、增加、更新和删除
 @date 2020/08/10
 """
 
@@ -240,7 +240,7 @@ def delete_dns(conf):
 
 if __name__ == "__main__":
     # 参数处理
-    parser = argparse.ArgumentParser(description="通过Cloudflare提供的API实现DNS记录的查询、增加、和更新")
+    parser = argparse.ArgumentParser(description="通过Cloudflare提供的API实现DNS记录的查询、增加、更新和删除")
     parser.add_argument("-l", "--list", action="store_true", help="查询DNS记录")
     parser.add_argument("-a", "--add", action="store_true", help="增加DNS记录")
     parser.add_argument("-u", "--update", action="store_true", help="更新DNS记录")
