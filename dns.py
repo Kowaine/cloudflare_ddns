@@ -246,40 +246,44 @@ def delete_dns(conf):
 
 
 if __name__ == "__main__":
-    # 参数处理
-    parser = argparse.ArgumentParser(description="通过Cloudflare提供的API实现DNS记录的查询、增加、更新和删除")
-    parser.add_argument("-l", "--list", action="store_true", help="查询DNS记录")
-    parser.add_argument("-a", "--add", action="store_true", help="增加DNS记录")
-    parser.add_argument("-u", "--update", action="store_true", help="更新DNS记录")
-    parser.add_argument("-d", "--delete", action="store_true", help="删除DNS记录")
-    args = parser.parse_args()
+    try:
+        # 参数处理
+        parser = argparse.ArgumentParser(description="通过Cloudflare提供的API实现DNS记录的查询、增加、更新和删除")
+        parser.add_argument("-l", "--list", action="store_true", help="查询DNS记录")
+        parser.add_argument("-a", "--add", action="store_true", help="增加DNS记录")
+        parser.add_argument("-u", "--update", action="store_true", help="更新DNS记录")
+        parser.add_argument("-d", "--delete", action="store_true", help="删除DNS记录")
+        args = parser.parse_args()
 
-    # 统计参数数量
-    args_list = list(vars(args).values())
-    args_count = sum(args_list)
+        # 统计参数数量
+        args_list = list(vars(args).values())
+        args_count = sum(args_list)
 
-    # 处理
-    if args_count != 1:
-        print("标志数量过多或过少! 此脚本仅支持一个标志!")
+        # 处理
+        if args_count != 1:
+            print("标志数量过多或过少! 此脚本仅支持一个标志!")
+            sys.exit(-1)
+        else:
+            # 配置
+            conf = generate_conf()
+            if(args.list):
+                # 查询
+                list_dns(conf)
+            elif(args.add):
+                # 进一步配置
+                conf = add_meta_conf(conf, require_id=False, require_priority=True) 
+                # 增加
+                add_dns(conf)
+            elif(args.update):
+                # 进一步配置
+                conf = add_meta_conf(conf)
+                # 更新
+                update_dns(conf)
+            elif(args.delete):
+                # 进一步配置
+                conf = add_meta_conf(conf, require_meta=False)
+                # 删除
+                delete_dns(conf)
+    except KeyboardInterrupt:
+        sys.stderr.write("\n[ Stopped! ]\n")
         sys.exit(-1)
-    else:
-        # 配置
-        conf = generate_conf()
-        if(args.list):
-            # 查询
-            list_dns(conf)
-        elif(args.add):
-            # 进一步配置
-            conf = add_meta_conf(conf, require_id=False, require_priority=True) 
-            # 增加
-            add_dns(conf)
-        elif(args.update):
-            # 进一步配置
-            conf = add_meta_conf(conf)
-            # 更新
-            update_dns(conf)
-        elif(args.delete):
-            # 进一步配置
-            conf = add_meta_conf(conf, require_meta=False)
-            # 删除
-            delete_dns(conf)
