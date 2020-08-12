@@ -49,8 +49,16 @@ def add_meta_conf(conf, require_id=True, require_priority=False, require_meta=Tr
                 break
     if require_meta:
         while True:
-            conf['name'] = input("三级域名前缀: ")
+            conf['name'] = input("主机记录: ")
             if conf['name']:
+                break
+    if require_meta:
+        while True:
+            conf['content'] = input("记录值(默认使用本机ip): ")
+            if conf['content']:
+                break
+            else:
+                conf['content'] = get_ip_info()
                 break
     if require_id:
         while True:
@@ -66,7 +74,6 @@ def add_meta_conf(conf, require_id=True, require_priority=False, require_meta=Tr
         priority = input("记录优先级(某些类型可用，默认为0): ")
         priority = int(priority) if priority.isdigit() else 0
         conf['priority'] = priority
-    conf['content'] = get_ip_info()
     return conf
 
 
