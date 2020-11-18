@@ -45,6 +45,14 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             sys.stderr.write("\n[ Stopped! ]\n")
             sys.exit(-1)
-        except Exception:
+        except requests.exceptions.RequestException:
+            sys.stderr.write("\n------ 连接超时，将在1分钟后重试! ------\n")
+            time.sleep(60)
+        except Exception as e:
             sys.stderr.write("\n------ 遇到未知错误，将在1分钟后重试! ------\n")
+            with open("error.log", "a") as f:
+                temp_time = time.localtime(time.time())
+                f.write("{}/{:0>2d}/{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}".format(temp_time.tm_year, temp_time.tm_mon, temp_time.tm_mday, 
+            temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec), " ")
+                f.write(e, "\n")
             time.sleep(60)
