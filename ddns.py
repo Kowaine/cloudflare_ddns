@@ -41,11 +41,12 @@ if __name__ == "__main__":
                 print("[ End {} ]".format(conf['name']))
                 print("------------")
             print("------ 结束更新 ------")
+            print("将在{}s后开始下一次更新......".format(conf['interval']))
             with open("record.log", "a") as f:
                 temp_time = time.localtime(time.time())
                 f.write("{}/{:0>2d}/{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}".format(temp_time.tm_year, temp_time.tm_mon, temp_time.tm_mday, 
-            temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec) + str(conf) + "\n")
-            print("将在{}s后开始下一次更新......".format(conf['interval']))
+            temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec) + " ")
+                f.write(str(conf) + "\n")
             time.sleep(conf['interval'])
         except KeyboardInterrupt as e:
             sys.stderr.write("\n[ Stopped! ]\n")
