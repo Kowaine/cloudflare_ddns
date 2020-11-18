@@ -99,7 +99,7 @@ def list_dns(conf):
         "Content-Type": "application/json"
     }
     params = {"per_page": 100}
-    res = requests.get(api, headers=headers, params=params)
+    res = requests.get(api, headers=headers, params=params, timeout=6)
 
     # 检查并输出返回数据
     res.encoding = "utf-8"
@@ -146,7 +146,7 @@ def update_dns(conf):
         "content": conf['content'],
         "proxied": conf['proxied']
     }
-    res = requests.put(api, headers=headers, json=params)
+    res = requests.put(api, headers=headers, json=params, timeout=6)
 
     # 检查并输出返回数据
     res.encoding = "utf-8"
@@ -193,7 +193,7 @@ def add_dns(conf):
         "proxied": conf['proxied'],
         "priority": conf['priority']
     }
-    res = requests.post(api, headers=headers, json=params)
+    res = requests.post(api, headers=headers, json=params, timeout=6)
 
     # 检查并输出返回数据
     res.encoding = "utf-8"
@@ -229,7 +229,7 @@ def delete_dns(conf):
         "X-Auth-Key": conf['api_key'],
         "Content-Type": "application/json"
     }
-    res = requests.delete(api, headers=headers)
+    res = requests.delete(api, headers=headers, timeout=6)
 
     # 检查并输出返回数据
     res.encoding = "utf-8"
