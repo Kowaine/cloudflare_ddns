@@ -11,6 +11,18 @@ from dns import update_dns
 import time, sys
 import requests
 
+def get_formatted_time(any_time):
+    """
+    获取格式化的时间字符串
+    @args
+        any_time 任意合法时间戳
+    @returns 格式化后的时间字符串 :string
+    """
+    formatter = "{}/{:0>2d}/{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}"
+    ntime = time.localtime(any_time)
+    formatted_time = formatter.format(temp_time.tm_year, temp_time.tm_mon, temp_time.tm_mday, temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec)
+    return formatted_time
+
 if __name__ == "__main__":
     # 配置项整合
     conf = {}
@@ -42,33 +54,33 @@ if __name__ == "__main__":
                 print("------------")
             print("------ 结束更新 ------")
             print("将在{}s后开始下一次更新......".format(conf['interval']))
+            
+            # 输出日志
             with open("record.log", "a") as f:
-                temp_time = time.localtime(time.time())
-                f.write("{}/{:0>2d}/{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}".format(temp_time.tm_year, temp_time.tm_mon, temp_time.tm_mday, 
-            temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec) + " ")
+                f.write(get_formatted_time(time.time()) + " ")
                 f.write(str(conf) + "\n")
             time.sleep(conf['interval'])
+
+        # 错误处理
+
+        # 键盘中断
         except KeyboardInterrupt as e:
             sys.stderr.write("\n[ Stopped! ]\n")
             with open("error.log", "a") as f:
-                temp_time = time.localtime(time.time())
-                f.write("{}/{:0>2d}/{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}".format(temp_time.tm_year, temp_time.tm_mon, temp_time.tm_mday, 
-            temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec) + " ")
+                tf.write(get_formatted_time(time.time()) + " ")
                 f.write(str(e) + "\n")
             sys.exit(-1)
+        # 超时
         except requests.exceptions.RequestException as e:
             sys.stderr.write("\n------ 连接超时，将在1分钟后重试! ------\n")
             with open("error.log", "a") as f:
-                temp_time = time.localtime(time.time())
-                f.write("{}/{:0>2d}/{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}".format(temp_time.tm_year, temp_time.tm_mon, temp_time.tm_mday, 
-            temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec) + " ")
+                f.write(get_formatted_time(time.time()) + " ")
                 f.write(str(e) + "\n")
             time.sleep(60)
+        #未知错误
         except Exception as e:
             sys.stderr.write("\n------ 遇到未知错误，将在1分钟后重试! ------\n")
             with open("error.log", "a") as f:
-                temp_time = time.localtime(time.time())
-                f.write("{}/{:0>2d}/{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}".format(temp_time.tm_year, temp_time.tm_mon, temp_time.tm_mday, 
-            temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec) + " ")
+                f.write(get_formatted_time(time.time()) + " ")
                 f.write(str(e) + "\n")
             time.sleep(60)
