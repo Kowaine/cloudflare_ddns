@@ -67,7 +67,7 @@ if __name__ == "__main__":
         except KeyboardInterrupt as e:
             sys.stderr.write("\n[ Stopped! ]\n")
             with open("error.log", "a") as f:
-                tf.write(get_formatted_time(time.time()) + " ")
+                f.write(get_formatted_time(time.time()) + " ")
                 f.write(str(e) + "\n")
             sys.exit(-1)
         # 超时
