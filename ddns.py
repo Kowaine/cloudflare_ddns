@@ -19,7 +19,7 @@ def get_formatted_time(any_time):
     @returns 格式化后的时间字符串 :string
     """
     formatter = "{}/{:0>2d}/{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}"
-    ntime = time.localtime(any_time)
+    temp_time = time.localtime(any_time)
     formatted_time = formatter.format(temp_time.tm_year, temp_time.tm_mon, temp_time.tm_mday, temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec)
     return formatted_time
 
