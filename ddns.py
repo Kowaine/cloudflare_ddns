@@ -9,6 +9,7 @@ from conf import *
 from ddns_conf import *
 from dns import update_dns
 import time, sys
+import requests
 
 if __name__ == "__main__":
     # 配置项整合
