@@ -10,6 +10,7 @@ from ddns_conf import *
 from dns import update_dns
 import time, sys
 import requests
+import socket
 
 def get_formatted_time(any_time):
     """
@@ -32,6 +33,9 @@ if __name__ == "__main__":
     conf['api'] = API
     conf['ddns_list'] = DDNS_LIST
     conf['interval'] = INTERVAL
+
+    # 设置全局超时
+    socket.setdefaulttimeout(6)
 
     print("【DDNS服务启动】")
 
