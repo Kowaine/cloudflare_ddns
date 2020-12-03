@@ -69,12 +69,7 @@ if __name__ == "__main__":
                 original_domain = domain_reg.search(API).group()
                 # print(original_domain)
                 real_ip = domain_name_res(original_domain)
-                print(real_ip)
-                # print(domain_name_res(original_domain))
-                # old_api = conf['api']
-                # conf['api'] = conf['api'].replace(original_domain, real_ip)
-                # print(conf['api'])
-                # conf['referer'] = old_api
+                # print(real_ip)
                 conf['domain'] = original_domain
                 conf['ip'] = real_ip
 
