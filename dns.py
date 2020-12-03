@@ -7,6 +7,42 @@
 from ip import get_ip_info
 from conf import *
 import requests, json, argparse, sys
+from requests import Session, HTTPError
+from requests.adapters import HTTPAdapter, DEFAULT_POOLSIZE, DEFAULT_RETRIES, DEFAULT_POOLBLOCK
+
+
+class DNSHTTPSAdapter(HTTPAdapter):
+    def __init__(self, domain, ip, pool_connections=DEFAULT_POOLSIZE, pool_maxsize=DEFAULT_POOLSIZE,
+        max_retries=DEFAULT_RETRIES, pool_block=DEFAULT_POOLBLOCK):
+        self.__domain = domain
+        self.__ip = ip
+        super(DNSHTTPSAdapter, self).__init__(pool_connections=pool_connections, pool_maxsize=pool_maxsize,
+            max_retries=max_retries, pool_block=pool_block)
+
+    # def get_connection(self, url, proxies=None):
+    #     redirected_url = url.replace(self.__domain, self.__ip)
+    #     return super(DNSHTTPSAdapter, self).get_connection(redirected_url, proxies=proxies)
+
+    # def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
+    #     pool_kwargs['assert_hostname'] = self.__domain
+    #     pool_kwargs['server_hostname'] = self.__domain
+    #     super(DNSHTTPSAdapter, self).init_poolmanager(connections, maxsize, block=block, **pool_kwargs)
+
+    def send(self, request, **kwargs):
+        connection_pool_kwargs = self.poolmanager.connection_pool_kw
+
+        request.url = request.url.replace(
+            'https://' + self.__domain,
+            'https://' + self.__ip,
+        )
+        connection_pool_kwargs['server_hostname'] = self.__domain  # SNI
+        connection_pool_kwargs['assert_hostname'] = self.__domain
+
+        # overwrite the host header
+        request.headers['Host'] = self.__domain
+
+        return super(DNSHTTPSAdapter, self).send(request, **kwargs)
+
 
 
 def generate_conf():
@@ -99,7 +135,7 @@ def list_dns(conf):
         "Content-Type": "application/json"
     }
     params = {"per_page": 100}
-    res = requests.get(api, headers=headers, params=params, timeout=6)
+    res = requests.get(api, headers=headers, params=params, timeout=3)
 
     # 检查并输出返回数据
     res.encoding = "utf-8"
@@ -146,7 +182,10 @@ def update_dns(conf):
         "content": conf['content'],
         "proxied": conf['proxied']
     }
-    res = requests.put(api, headers=headers, json=params, timeout=6)
+    session = requests.Session()
+    session.mount("https://", DNSHTTPSAdapter(conf['domain'], conf['ip']))
+    res = session.put(api, headers=headers, json=params, timeout=3)
+    # print(res.headers)
 
     # 检查并输出返回数据
     res.encoding = "utf-8"
@@ -158,8 +197,10 @@ def update_dns(conf):
             return data['result']
         else:
             print("[ Failed! ]")
+            raise Exception("数据为空或访问服务器失败")
     else:
         print("[ Failed! ]", "ErrorCode:", res.status_code)
+        raise Exception("ErrorCode: " + str(res.status_code))
 
 
 def add_dns(conf):
@@ -193,7 +234,7 @@ def add_dns(conf):
         "proxied": conf['proxied'],
         "priority": conf['priority']
     }
-    res = requests.post(api, headers=headers, json=params, timeout=6)
+    res = requests.post(api, headers=headers, json=params, timeout=3)
 
     # 检查并输出返回数据
     res.encoding = "utf-8"
@@ -229,7 +270,7 @@ def delete_dns(conf):
         "X-Auth-Key": conf['api_key'],
         "Content-Type": "application/json"
     }
-    res = requests.delete(api, headers=headers, timeout=6)
+    res = requests.delete(api, headers=headers, timeout=3)
 
     # 检查并输出返回数据
     res.encoding = "utf-8"
