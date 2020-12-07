@@ -12,6 +12,7 @@ import time, sys
 import requests
 import socket
 import DNS, re
+import multiprocessing, os
 
 def get_formatted_time(any_time):
     """
@@ -39,8 +40,10 @@ def domain_name_res(domain):
     return result[0]['data']
 
 
-
-if __name__ == "__main__":
+def do_ddns():
+    """
+    ddns
+    """
     try:
         # 配置项整合
         conf = {}
@@ -120,3 +123,42 @@ if __name__ == "__main__":
             f.write(get_formatted_time(time.time()) + " ")
             f.write("主动键盘中断" + "\n")
         sys.exit(-1)
+
+
+if __name__ == "__main__":
+    # 管理ddns，监测DDNS线程是否假死，若假死则重启该进程
+    ddns_process = multiprocessing.Process(target=do_ddns)
+    ddns_process.start()
+    try:
+        check_interval = 2 * INTERVAL
+        time.sleep(check_interval)
+        while(True):
+            record_info = os.stat("record.log")
+            error_info = os.stat("error.log")
+            ntime = time.time()
+
+            # 若假死
+            if ntime - record_info.st_mtime > INTERVAL and ntime - error_info.st_mtime > INTERVAL:
+                # 杀死进程
+                ddns_process.terminate()
+                ddns_process.join()
+                sys.stderr.write("\n------ DDNS进程假死，即将自动重启进程! ------\n")
+                with open("error.log", "a") as f:
+                    f.write(get_formatted_time(time.time()) + " ")
+                    f.write("进程假死重启" + "\n")
+                # 重启进程
+                ddns_process = multiprocessing.Process(target=do_ddns)
+                ddns_process.start()
+
+            time.sleep(check_interval)
+    
+    # 键盘中断
+    except KeyboardInterrupt as e:
+        ddns_process.terminate()
+        ddns_process.join()
+        sys.exit(-1)
+    except Exception:
+        ddns_process.terminate()
+        ddns_process.join()
+        sys.exit(-1)
+    
