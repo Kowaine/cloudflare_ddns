@@ -130,7 +130,7 @@ if __name__ == "__main__":
     ddns_process = multiprocessing.Process(target=do_ddns)
     ddns_process.start()
     try:
-        check_interval = (len(DDNS_LIST) + 1) * (TIMEOUT + 1) 
+        check_interval = len(DDNS_LIST) * (TIMEOUT + 1) + 2 * TIMEOUT
         time.sleep(check_interval)
         while(True):
             record_info = os.stat("record.log")
