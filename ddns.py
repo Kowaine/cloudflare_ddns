@@ -15,7 +15,7 @@ import DNS, re
 import multiprocessing, os
 
 
-dns_time = 2 * TIMEOUT
+ip_dns_time = 2 * TIMEOUT
 time_lock = multiprocessing.Lock()
 
 
@@ -71,10 +71,14 @@ def do_ddns():
         while True:
             try:
                 print("------ 开始更新 {time} ------".format(time=get_formatted_time(time.time())))
+                
+                print("开始获取本机IP与解析DNS...")
+                s_time = time.time()
+
+                # 获取本机ip
                 conf['content'] = ip.get_ip_info()
 
-                print("--- 开始解析DNS ---")
-                s_time = time.time()
+                
                 # 重新解析dns，以求避开dns污染
                 original_domain = domain_reg.search(API).group()
                 # print(original_domain)
@@ -82,10 +86,10 @@ def do_ddns():
                 # print(real_ip)
                 conf['domain'] = original_domain
                 conf['ip'] = real_ip
-                print("--- 结束解析DNS ---")
                 e_time = time.time()
                 time_lock.acquire()
-                DNS_TIME = e_time - s_time
+                ip_dns_time = e_time - s_time    
+                print("结束 用时约{time:.2f}s".format(time=ip_dns_time))
                 time_lock.release()
 
                 for ddns in conf['ddns_list']:
@@ -143,7 +147,7 @@ if __name__ == "__main__":
     ddns_process.start()
     try:
         time_lock.acquire()
-        check_interval = len(DDNS_LIST) * (TIMEOUT + 1) + 2 * dns_time
+        check_interval = len(DDNS_LIST) * (TIMEOUT + 1) + 2 * ip_dns_time
         time_lock.release()
         time.sleep(check_interval)
         while(True):
