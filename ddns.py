@@ -17,6 +17,8 @@ import multiprocessing, os
 
 ip_dns_time = 2 * TIMEOUT
 time_lock = multiprocessing.Lock()
+record_lock = multiprocessing.Lock()
+error_lock = multiprocessing.Lock()
 
 
 def get_formatted_time(any_time):
@@ -108,9 +110,11 @@ def do_ddns():
                 print("将在{}s后开始下一次更新......".format(conf['interval']))
                 
                 # 输出日志
+                record_lock.acquire()
                 with open("record.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write(str(conf) + "\n")
+                record_lock.release()
                 time.sleep(conf['interval'])
 
             # 错误处理
@@ -120,24 +124,30 @@ def do_ddns():
             # 超时
             except requests.exceptions.RequestException as e:
                 sys.stderr.write("\n------ 连接超时，将在1分钟后重试! ------\n")
+                error_lock.acquire()
                 with open("error.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write(str(e) + "\n")
+                error_lock.release()
                 time.sleep(60)
             #未知错误
             except Exception as e:
                 sys.stderr.write("\n------ 遇到未知错误，将在1分钟后重试! ------\n")
+                error_lock.acquire()
                 with open("error.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write(str(e) + "\n")
+                error_lock.release()
                 time.sleep(60)
     
     # 键盘中断
     except KeyboardInterrupt as e:
         sys.stderr.write("\n------ 已主动停止! ------\n")
+        error_lock.acquire()
         with open("error.log", "a") as f:
             f.write(get_formatted_time(time.time()) + " ")
             f.write("主动键盘中断" + "\n")
+        error_lock.release()
         sys.exit(-1)
 
 
@@ -161,9 +171,11 @@ if __name__ == "__main__":
                 ddns_process.terminate()
                 ddns_process.join()
                 sys.stderr.write("\n------ DDNS进程假死，即将自动重启进程! ------\n")
+                error_lock.acquire()
                 with open("error.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write("进程假死重启" + "\n")
+                error_lock.release
                 # 重启进程
                 ddns_process = multiprocessing.Process(target=do_ddns)
                 ddns_process.start()
