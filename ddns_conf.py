@@ -27,3 +27,6 @@ DDNS_LIST = [
 
 # 更新时间间隔(s), 不建议低于1800s
 INTERVAL = 1800
+
+# 超时时间
+TIMEOUT = 3

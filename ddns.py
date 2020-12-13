@@ -55,7 +55,7 @@ def do_ddns():
         conf['interval'] = INTERVAL
 
         # 设置全局超时
-        socket.setdefaulttimeout(3)
+        socket.setdefaulttimeout(TIMEOUT)
 
         # 编译正则
         domain_reg = re.compile("(?<=//)[^/]{1,}?(?=/)")
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     ddns_process = multiprocessing.Process(target=do_ddns)
     ddns_process.start()
     try:
-        check_interval = (len(DDNS_LIST) + 1) * 4 
+        check_interval = (len(DDNS_LIST) + 1) * (TIMEOUT + 1) 
         time.sleep(check_interval)
         while(True):
             record_info = os.stat("record.log")
