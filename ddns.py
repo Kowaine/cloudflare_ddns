@@ -14,6 +14,11 @@ import socket
 import DNS, re
 import multiprocessing, os
 
+
+dns_time = 2 * TIMEOUT
+time_lock = multiprocessing.Lock()
+
+
 def get_formatted_time(any_time):
     """
     获取格式化的时间字符串
@@ -68,6 +73,8 @@ def do_ddns():
                 print("------ 开始更新 {time} ------".format(time=get_formatted_time(time.time())))
                 conf['content'] = ip.get_ip_info()
 
+                print("--- 开始解析DNS ---")
+                s_time = time.time()
                 # 重新解析dns，以求避开dns污染
                 original_domain = domain_reg.search(API).group()
                 # print(original_domain)
@@ -75,6 +82,11 @@ def do_ddns():
                 # print(real_ip)
                 conf['domain'] = original_domain
                 conf['ip'] = real_ip
+                print("--- 结束解析DNS ---")
+                e_time = time.time()
+                time_lock.acquire()
+                DNS_TIME = e_time - s_time
+                time_lock.release()
 
                 for ddns in conf['ddns_list']:
                     # 封装单个DDNS配置
@@ -130,7 +142,9 @@ if __name__ == "__main__":
     ddns_process = multiprocessing.Process(target=do_ddns)
     ddns_process.start()
     try:
-        check_interval = len(DDNS_LIST) * (TIMEOUT + 1) + 2 * TIMEOUT
+        time_lock.acquire()
+        check_interval = len(DDNS_LIST) * (TIMEOUT + 1) + 2 * dns_time
+        time_lock.release()
         time.sleep(check_interval)
         while(True):
             record_info = os.stat("record.log")
