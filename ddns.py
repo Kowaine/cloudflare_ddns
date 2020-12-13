@@ -67,7 +67,7 @@ def do_ddns():
         # 编译正则
         domain_reg = re.compile("(?<=//)[^/]{1,}?(?=/)")
 
-        print("【DDNS服务启动】")
+        print("【DDNS服务启动】\n")
 
         # 循环更新
         while True:
@@ -107,7 +107,7 @@ def do_ddns():
                     print("[ End {} ]".format(conf['name']))
                     print("------------")
                 print("------ 结束更新 {time} ------".format(time=get_formatted_time(time.time())))
-                print("将在{}s后开始下一次更新......".format(conf['interval']))
+                print("将在{}s后开始下一次更新......\n".format(conf['interval']))
                 
                 # 输出日志
                 record_lock.acquire()
