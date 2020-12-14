@@ -167,15 +167,26 @@ if __name__ == "__main__":
 
             # 若假死
             if ntime - record_info.st_mtime > INTERVAL and ntime - error_info.st_mtime > INTERVAL:
+                # 获取锁以防释放前进程被杀死导致的死锁
+                error_lock.acquire()
+
+                record_lock.acquire()
+                time_lock.acquire()
+
                 # 杀死进程
                 ddns_process.terminate()
                 ddns_process.join()
+
+                # 释放不必要的锁
+                time_lock.release()
+                record_lock.release()
+                
+                # 记录错误日志
                 sys.stderr.write("\n------ DDNS进程假死，即将自动重启进程! ------\n")
-                error_lock.acquire()
                 with open("error.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write("进程假死重启" + "\n")
-                error_lock.release
+                error_lock.release()
                 # 重启进程
                 ddns_process = multiprocessing.Process(target=do_ddns)
                 ddns_process.start()
