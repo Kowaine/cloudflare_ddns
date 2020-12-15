@@ -123,22 +123,22 @@ def do_ddns():
                 raise KeyboardInterrupt
             # 超时
             except requests.exceptions.RequestException as e:
-                sys.stderr.write("\n------ 连接超时，将在1分钟后重试! ------\n")
+                sys.stderr.write("\n------ 连接超时，将在{timeout}秒后重试! ------\n".format(timeout=TIMEOUT))
                 error_lock.acquire()
                 with open("error.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write(str(e) + "\n")
                 error_lock.release()
-                time.sleep(60)
-            #未知错误
+                time.sleep(TIMEOUT)
+            # 未知错误
             except Exception as e:
-                sys.stderr.write("\n------ 遇到未知错误，将在1分钟后重试! ------\n")
+                sys.stderr.write("\n------ 遇到未知错误，将在{timeout}秒后重试! ------\n".format(timeout=TIMEOUT))
                 error_lock.acquire()
                 with open("error.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write(str(e) + "\n")
                 error_lock.release()
-                time.sleep(60)
+                time.sleep(TIMEOUT)
     
     # 键盘中断
     except KeyboardInterrupt as e:
