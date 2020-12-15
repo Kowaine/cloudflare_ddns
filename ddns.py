@@ -13,6 +13,7 @@ import requests
 import socket
 import DNS, re
 import multiprocessing, os
+import ext4error
 
 
 ip_dns_time = 2 * TIMEOUT
@@ -138,6 +139,7 @@ def do_ddns():
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write(str(e) + "\n")
                 error_lock.release()
+                ext4error.process(e)
                 time.sleep(TIMEOUT)
     
     # 键盘中断
