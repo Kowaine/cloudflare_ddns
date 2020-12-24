@@ -133,14 +133,14 @@ def do_ddns():
                 time.sleep(TIMEOUT)
             # 未知错误
             except Exception as e:
-                sys.stderr.write("\n------ 遇到未知错误，将在{timeout}秒后重试! ------\n".format(timeout=TIMEOUT))
+                sys.stderr.write("\n------ 遇到未知错误，将在{timeout}秒后重试! ------\n".format(timeout=TIMEOUT*10))
                 error_lock.acquire()
                 with open("error.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write(str(e) + "\n")
                 error_lock.release()
                 ext4error.process(e)
-                time.sleep(TIMEOUT)
+                time.sleep(TIMEOUT*10)
     
     # 键盘中断
     except KeyboardInterrupt as e:
