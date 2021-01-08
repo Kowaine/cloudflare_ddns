@@ -14,6 +14,7 @@ import socket
 import DNS, re
 import multiprocessing, os
 import ext4error
+import subprocess
 
 
 ip_dns_time = 2 * TIMEOUT
@@ -101,6 +102,12 @@ def do_ddns():
                     conf['type'] = ddns['TYPE']
                     conf['name'] = ddns['NAME']
                     conf['proxied'] = ddns['PROXIED']
+                    # ipv6
+                    if conf['type'] == "AAAA":
+                        ipv6_p = subprocess.Popen("ipconfig", shell=True, stdout=subprocess.PIPE)
+                        ipv6_line = ipv6_p.stdout.readlines()[23]
+                        conf['content'] = re.search(b"(?<=: )[0-9a-z:]{15,}(?=\r\n)", ipv6_line).group(0).decode()
+
                     # 单个更新
                     print("------------")
                     print("[ Start {} ]".format(conf['name']))
