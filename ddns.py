@@ -48,6 +48,12 @@ def domain_name_res(domain):
     # print(result)
     return result[0]['data']
 
+def flush_dns():
+    """
+    清除dns缓存
+    """
+    return subprocess.Popen("ipconfig /flushdns", shell=True, stdout=subprocess.PIPE)
+
 
 def do_ddns():
     """
@@ -105,8 +111,12 @@ def do_ddns():
                     # ipv6
                     if conf['type'] == "AAAA":
                         ipv6_p = subprocess.Popen("ipconfig", shell=True, stdout=subprocess.PIPE)
-                        ipv6_line = ipv6_p.stdout.readlines()[23]
-                        conf['content'] = re.search(b"(?<=: )[0-9a-z:]{15,}(?=\r\n)", ipv6_line).group(0).decode()
+                        # ipv6_line = ipv6_p.stdout.readlines()[23]
+                        output = ipv6_p.stdout.read()
+                        # ipv6_line = re.search(b"(?<=IPv6 \xb5\xd8\xd6\xb7 [\s\.]{1,}: )", output)
+                        conf['content'] = re.search(b"(?<=IPv6 \xb5\xd8\xd6\xb7 . . . . . . . . . . . . : )[0-9a-z:]{15,}(?=\r\n)", output).group(0).decode()
+                        # print(conf['content'])
+                        # input()
 
                     # 单个更新
                     print("------------")
@@ -137,6 +147,7 @@ def do_ddns():
                     f.write(get_formatted_time(time.time()) + " ")
                     f.write(str(e) + "\n")
                 error_lock.release()
+                flush_dns()
                 time.sleep(TIMEOUT)
             # 未知错误
             except Exception as e:
@@ -147,16 +158,17 @@ def do_ddns():
                     f.write(str(e) + "\n")
                 error_lock.release()
                 ext4error.process(e)
+                flush_dns()
                 time.sleep(TIMEOUT*10)
     
     # 键盘中断
     except KeyboardInterrupt as e:
         sys.stderr.write("\n------ 已主动停止! ------\n")
-        error_lock.acquire()
-        with open("error.log", "a") as f:
-            f.write(get_formatted_time(time.time()) + " ")
-            f.write("主动键盘中断" + "\n")
-        error_lock.release()
+        # error_lock.acquire()
+        # with open("error.log", "a") as f:
+        #     f.write(get_formatted_time(time.time()) + " ")
+        #     f.write("主动键盘中断" + "\n")
+        # error_lock.release()
         sys.exit(-1)
 
 
