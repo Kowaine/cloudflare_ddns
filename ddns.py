@@ -90,6 +90,8 @@ def do_ddns():
 
                 # 获取本机ip
                 conf['content'] = ip.get_ip_info()
+                print("当前IP:", conf['content'])
+                global old_ip
                 if conf['content'] == old_ip:
                     print("IP4地址未发生变化，跳过本次更新！")
                     print("------ 结束更新 {time} ------".format(time=get_formatted_time(time.time())))
@@ -97,8 +99,7 @@ def do_ddns():
                     time.sleep(conf['interval']/3)
                     continue
                 else:
-                    old_ip = conf['content']
-                # print(conf['content'])
+                    pass
 
                 
                 # 重新解析dns，以求避开dns污染
@@ -138,6 +139,7 @@ def do_ddns():
                     print("------------")
                 print("------ 结束更新 {time} ------".format(time=get_formatted_time(time.time())))
                 print("将在{}s后开始下一次更新......\n".format(conf['interval']))
+                old_ip = conf['content']
                 
                 # 输出日志
                 record_lock.acquire()
@@ -153,7 +155,7 @@ def do_ddns():
                 raise KeyboardInterrupt
             # 超时
             except requests.exceptions.RequestException as e:
-                sys.stderr.write("\n------ 连接超时，将在{timeout}秒后重试! ------\n".format(timeout=TIMEOUT))
+                sys.stderr.write("\n------ 连接超时，将在{timeout}秒后重试! ------\n\n".format(timeout=TIMEOUT))
                 error_lock.acquire()
                 with open("error.log", "a") as f:
                     f.write(get_formatted_time(time.time()) + " ")
