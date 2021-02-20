@@ -22,6 +22,9 @@ time_lock = multiprocessing.Lock()
 record_lock = multiprocessing.Lock()
 error_lock = multiprocessing.Lock()
 
+# 记录上次ip，减少更新次数，防止被ban
+old_ip = "0.0.0.0"
+
 
 def get_formatted_time(any_time):
     """
@@ -77,7 +80,7 @@ def do_ddns():
 
         print("【DDNS服务启动】\n")
 
-        # 循环更新
+        """ 循环更新 """
         while True:
             try:
                 print("------ 开始更新 {time} ------".format(time=get_formatted_time(time.time())))
@@ -87,6 +90,13 @@ def do_ddns():
 
                 # 获取本机ip
                 conf['content'] = ip.get_ip_info()
+                if conf['content'] == old_ip:
+                    print("IP4地址未发生变化，跳过本次更新！")
+                    print("------ 结束更新 {time} ------".format(time=get_formatted_time(time.time())))
+                    print("将在{}s后开始下一次更新......\n".format(conf['interval']/3))
+                    time.sleep(conf['interval']/3)
+                    continue
+                # print(conf['content'])
 
                 
                 # 重新解析dns，以求避开dns污染
