@@ -96,6 +96,8 @@ def do_ddns():
                     print("将在{}s后开始下一次更新......\n".format(conf['interval']/3))
                     time.sleep(conf['interval']/3)
                     continue
+                else:
+                    old_ip = conf['content']
                 # print(conf['content'])
 
                 
