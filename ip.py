@@ -1,11 +1,13 @@
 """
-@author Kowaine
-@desc 获取本机公网ip的函数及相关函数
-@date 2020/08/10
+@Author: Kowaine
+@Description: 获取本机公网ip的函数及相关函数
+@Date: 2020-08-11 05:10:49
+@LastEditTime: 2021-02-20 14:53:34
 """
 
 import requests
 import socket
+import json
 
 def by_requests_wrapper(func):
     """
@@ -16,9 +18,12 @@ def by_requests_wrapper(func):
         wrapped 包装后的get_ip_info, 使用requests :function()
     """
     def wrapped():
-        info = requests.get("http://ipv4.icanhazip.com", timeout=3)
-        # info = requests.get("http://ip.chinaz.com/getip.aspx", timeout=3)
-        info = info.text[:-1]
+        # 已废弃
+        # info = requests.get("http://ipv4.icanhazip.com", timeout=3)
+        # info = info.text[:-1]
+        info = requests.get("http://ip-api.com/json/?lang=zh-CN", timeout=5)
+        info = json.loads(info.text)
+        info = info['query']
         return info
 
     return wrapped
